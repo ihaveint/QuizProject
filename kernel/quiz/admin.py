@@ -39,7 +39,7 @@ class AnswersAdmin(admin.ModelAdmin):
     )
 admin.site.register(Question)
 admin.site.register(Quiz)
-admin.site.register(Quiz_Detail)
+admin.site.register(QuizDetail)
 admin.site.register(Question_Feedback)
 admin.site.register(Level)
 admin.site.register(Category)

@@ -64,7 +64,7 @@ class Quiz(models.Model):
     id = models.UUIDField(primary_key=True , default = uuid.uuid4 , editable= False)
     title = models.CharField(max_length=30)
     slug = models.SlugField(max_length=30)
-    quiz_detail = models.OneToOneField('quiz.Quiz_Detail',on_delete=models.SET_NULL,null=True)
+    quiz_detail = models.OneToOneField('quiz.QuizDetail',on_delete=models.SET_NULL,null=True)
     category = models.ForeignKey('quiz.Category',on_delete=models.SET_NULL,null=True)
     level = models.ForeignKey('quiz.Level',on_delete=models.SET_NULL,null=True)
     is_active = models.BooleanField()
@@ -76,10 +76,11 @@ class Quiz(models.Model):
             ('can_take_quiz', 'Can Take Quiz'),
         )
 
-class Quiz_Detail(models.Model):
+class QuizDetail(models.Model):
     id = models.UUIDField(primary_key=True , default = uuid.uuid4 , editable= False)
     score_per_question = models.IntegerField(default=1 )
     banner = models.ImageField('upload/quiz/',null=True,blank=True)
+    # quiz = models.OneToOneField('Quiz', on_delete=models.CASCADE)
     teacher = models.ForeignKey('quiz.User', on_delete=models.SET_NULL,null=True)
     time_limit = models.BooleanField(default=True)
     time_per_question = models.TimeField()
