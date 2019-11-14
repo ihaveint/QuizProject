@@ -1,0 +1,7 @@
+venv/
+quiz_project/db.sqlite3
+*.pyc
+.DS_Store
+settings.ini
+quiz_project/mystaticfiles
+.vscode
