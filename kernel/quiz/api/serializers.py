@@ -3,6 +3,11 @@ from quiz.models import Category
 from quiz.models import Level
 from quiz.models import QuizDetail
 from quiz.models import User
+from quiz.models import Question_Feedback
+from quiz.models import Question
+from quiz.models import Answers
+from quiz.models import Candidate_Question_Answer
+from quiz.models import Candidate
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import HyperlinkedModelSerializer
 
@@ -35,5 +40,37 @@ class QuizDetailSerializer(HyperlinkedModelSerializer):
 class UserSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = []
+        fields = ['url']
         lookup_field = 'pk',
+
+
+class QuestionFeedbackSerializer(HyperlinkedModelSerializer):
+    class Meta:
+        model = Question_Feedback
+        fields = ['url', 'title', 'message', 'user_id', 'question_id']
+        lookup_field = 'pk',
+
+class QuestionSerializer(HyperlinkedModelSerializer):
+    class Meta:
+        model = Question
+        fields = ['url', 'text', 'possible_choices', 'quiz_id', 'created', 'modified']
+        lookup_field = 'pk',
+
+
+class Answerserializer(HyperlinkedModelSerializer):
+    class Meta:
+        model = Answers
+        fields = ['url', 'option1', 'option2', 'option3', 'option4', 'answer', 'created', 'modified']
+        lookup_field = 'pk',
+
+
+class CandidateQuestionAnswerSerializer(HyperlinkedModelSerializer):
+    class Meta:
+        model = Candidate_Question_Answer
+        fields = ['url', 'candidate_id', 'quiz_question_id', 'candidate_answer', 'is_correct', 'time_start', 'time_end']
+        lookup_field = 'pk',
+
+class CandidateSerializer(HyperlinkedModelSerializer):
+    class Meta:
+        model = Candidate
+        fields = ['url', 'quiz_id', 'user_id', 'no_correct', 'no_incorrent', 'no_unanswered', 'score', 'time_start', 'time_end', 'exam_date']
