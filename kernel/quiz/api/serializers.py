@@ -47,13 +47,13 @@ class UserSerializer(HyperlinkedModelSerializer):
 class QuestionFeedbackSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = Question_Feedback
-        fields = ['url', 'title', 'message', 'user_id', 'question_id']
+        fields = ['url', 'title', 'message', 'user', 'question']
         lookup_field = 'pk',
 
 class QuestionSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = Question
-        fields = ['url', 'text', 'possible_choices', 'quiz_id', 'created', 'modified']
+        fields = ['url', 'text', 'possible_choices', 'quiz', 'created', 'modified']
         lookup_field = 'pk',
 
 
@@ -67,10 +67,10 @@ class Answerserializer(HyperlinkedModelSerializer):
 class CandidateQuestionAnswerSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = Candidate_Question_Answer
-        fields = ['url', 'candidate_id', 'quiz_question_id', 'candidate_answer', 'is_correct', 'time_start', 'time_end']
+        fields = ['url', 'candidate', 'quiz_question', 'candidate_answer', 'is_correct', 'time_start', 'time_end']
         lookup_field = 'pk',
 
 class CandidateSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = Candidate
-        fields = ['url', 'quiz_id', 'user_id', 'no_correct', 'no_incorrent', 'no_unanswered', 'score', 'time_start', 'time_end', 'exam_date']
+        fields = ['url', 'quiz', 'user', 'no_correct', 'no_incorrent', 'no_unanswered', 'score', 'time_start', 'time_end', 'exam_date']
