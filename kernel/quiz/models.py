@@ -19,8 +19,8 @@ from .queryset.managers import QuestionManager
 
 class Candidate(models.Model):
     id = models.UUIDField(primary_key=True , default = uuid.uuid4 , editable= False)
-    quiz_id = models.ManyToManyField('quiz.Quiz',null=True, related_name='Candidate_fk')
-    user_id = models.ForeignKey('quiz.User',on_delete=models.CASCADE, related_name='Candidate_fk')
+    quiz = models.ManyToManyField('quiz.Quiz',null=True, related_name='Candidate_fk')
+    user = models.ForeignKey('quiz.User',on_delete=models.CASCADE, related_name='Candidate_fk')
     no_correct = models.IntegerField(default=0)
     no_incorrent = models.IntegerField(default=0)
     no_unanswered = models.IntegerField(default = 0)
@@ -38,9 +38,7 @@ class Candidate(models.Model):
         )
 
     def __str__(self):
-        return f"{self.user_id.user.first_name} {self.user_id.user.last_name}"
-
-
+        return f"{self.user.user.first_name} {self.user.user.last_name}"
 
 
 class User(models.Model):
@@ -57,8 +55,8 @@ class User(models.Model):
 class Candidate_Question_Answer(models.Model):
     answer_choices = (('a', 'A'), ('b', 'B'), ('c', 'C'), ('d', 'D'),('skip','SKIP'))
     id = models.UUIDField(primary_key=True , default = uuid.uuid4 , editable= False)
-    candidate_id = models.ForeignKey('quiz.Candidate',on_delete = models.CASCADE , related_name='question_answers')
-    quiz_question_id = models.ForeignKey('quiz.Question' , on_delete= models.CASCADE , related_name='question_answers')
+    candidate = models.ForeignKey('quiz.Candidate',on_delete = models.CASCADE , related_name='question_answers')
+    quiz_question = models.ForeignKey('quiz.Question' , on_delete= models.CASCADE , related_name='question_answers')
     candidate_answer = models.CharField(max_length = 20 , choices = answer_choices)
     is_correct = models.BooleanField(default=False , null=True , blank=True )
     time_start = models.DateTimeField()
@@ -72,7 +70,7 @@ class Candidate_Question_Answer(models.Model):
         super(Candidate_Question_Answer, self).save(*args, **kwargs)    
 
     def __str__(self):
-        return f"candidate answer : {self.candidate_id , self.quiz_question_id}"    
+        return f"candidate answer : {self.candidate , self.quiz_question}"    
 
 
 
@@ -105,7 +103,7 @@ class Question(models.Model):
     text = models.CharField(max_length=300)
     image = models.ImageField('upload/question/' , null=True , blank=True)
     possible_choices = models.ForeignKey('quiz.Answers', on_delete=models.SET_NULL,null=True)
-    quiz_id = models.ForeignKey('quiz.Quiz',on_delete=models.CASCADE, related_name='questions')
+    quiz = models.ForeignKey('quiz.Quiz',on_delete=models.CASCADE, related_name='questions')
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
@@ -148,8 +146,8 @@ class Question_Feedback(models.Model):
     id = models.UUIDField(primary_key=True , default = uuid.uuid4 , editable= False)
     title = models.CharField(max_length=50)
     message = models.CharField(max_length=400)
-    user_id = models.ForeignKey('quiz.User', on_delete=models.SET_NULL,null=True)
-    question_id = models.ForeignKey('quiz.Question', on_delete=models.CASCADE)
+    user = models.ForeignKey('quiz.User', on_delete=models.SET_NULL,null=True)
+    question = models.ForeignKey('quiz.Question', on_delete=models.CASCADE)
 
     def __str__(self):
         return f"feedback title : {self.title}"
