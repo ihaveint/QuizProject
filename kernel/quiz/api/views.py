@@ -20,6 +20,12 @@ from quiz.models import Answers
 from quiz.models import Candidate_Question_Answer
 from quiz.models import Candidate
 
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+from rest_framework.request import Request
+
+
+
 class QuizViewSets(viewsets.ModelViewSet):
     queryset = Quiz.objects.all()
     serializer_class = QuizSerializer
@@ -60,3 +66,10 @@ class CandidateQuestionAnswerViewSets(viewsets.ModelViewSet):
 class CandidateViewSets(viewsets.ModelViewSet):
     queryset = Candidate.objects.all()
     serializer_class = CandidateSerializer
+
+class AllCandidatesHistoryViewSet(viewsets.ViewSet):
+    def list(self,request):
+        queryset = Candidate.candidate_manager.all()
+        serializer = CandidateSerializer(queryset, many=True,context={'request': request})
+        # serializer_context={'request': request} 
+        return Response(serializer.data)

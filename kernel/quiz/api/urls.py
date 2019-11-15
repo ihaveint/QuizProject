@@ -9,6 +9,7 @@ from .views import QuestionViewSets
 from .views import AnswersViewSets
 from .views import CandidateQuestionAnswerViewSets
 from .views import CandidateViewSets
+from .views import AllCandidatesHistoryViewSet
 
 router = routers.DefaultRouter()
 
@@ -22,3 +23,4 @@ router.register(r'question',QuestionViewSets)
 router.register(r'answer',AnswersViewSets)
 router.register(r'candidate_answer',CandidateQuestionAnswerViewSets)
 router.register(r'candidate',CandidateViewSets)
+router.register(r'candidates_history',AllCandidatesHistoryViewSet, base_name='candidate_history')
