@@ -3,7 +3,6 @@ import uuid
 
 from django.db import models
 from django.contrib.auth.models import User
-# from datetime import datetime
 from django.utils import timezone
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -13,6 +12,10 @@ from django.utils.translation import gettext as _
 
 from .queryset.managers import QuizManager_practice
 from .queryset.managers import CandidateManager_practice
+from .queryset.managers import UserManager
+from .queryset.managers import CandidateQuestionAnswerManager
+from .queryset.managers import AnswerManager
+from .queryset.managers import QuestionManager
 
 class Candidate(models.Model):
     id = models.UUIDField(primary_key=True , default = uuid.uuid4 , editable= False)
@@ -27,7 +30,6 @@ class Candidate(models.Model):
     exam_date = models.DateTimeField()
 
     objects = models.Manager()
-    # candidate_manager = CandidateManager()
     candidate_manager = CandidateManager_practice()
 
     class Meta:
@@ -35,53 +37,8 @@ class Candidate(models.Model):
             ('can_take_quiz', 'Can Take Quiz'),
         )
 
-    def get_total_correct_count(self):
-        active_quizes_queryset = Quiz.quiz_manager.all().filter(is_active=True)
-        if len(active_quizes_queryset) > 0:
-            current_quiz = active_quizes_queryset[0]
-            quiz_questions = current_quiz.questions.all()
-            question_answers = Answers.answere_manager.filter(id__in=quiz_questions.values('possible_choices__id'))
-
-            pass
-        else:
-            return 0 # this user is not participating in a quiz
-        # return self.quiz_id.all()
-        # return self.candidate_manager.filter(pk=id)
-        pass
-        
-
-    def get_all_quiz_questions(self):
-        active_quizes_queryset = Quiz.quiz_manager.all().filter(is_active=True)
-        if len(active_quizes_queryset) > 0:
-            current_quiz = active_quizes_queryset[0]
-            quiz_questions = current_quiz.questions.all()
-            question_answers = Answers.answere_manager.filter(id__in=quiz_questions.values('possible_choices__id'))
-
-            pass
-        else:
-            return 0
-        pass
-        
-
     def __str__(self):
         return f"{self.user_id.user.first_name} {self.user_id.user.last_name}"
-
-
-
-
-
-
-class UserQuerySet(models.QuerySet):
-    def best_score(self):
-        each_time_candidate = Candidate.objects.filter(user_id=id)
-   
-
-class UserManager(models.Manager):
-    def get_queryset(self):
-        return UserQuerySet(self.model, using=self._db)
-        
-    def get_best_score(self):
-        return self.get_queryset().best_score()
 
 
 
@@ -93,16 +50,8 @@ class User(models.Model):
     objects = models.Manager()
     user_manager = UserManager()
 
-
-class CandidateQuestionAnswerQuerySet(models.QuerySet):
-    pass
-
-class CandidateQuestionAnswerManager(models.Manager):
-    def get_queryset(self):
-        return CandidateQuestionAnswerQuerySet(self.model, using=self._db)
-
-    def get_answers_of_candidat(self, candidate):
-        return self.get_queryset().filter(candidate_id__id=candidate.id)
+    def __str__(self):
+        return f"{self.user.first_name} , {self.user.last_name}"
 
 
 class Candidate_Question_Answer(models.Model):
@@ -121,17 +70,11 @@ class Candidate_Question_Answer(models.Model):
 
     def save(self, *args, **kwargs):
         super(Candidate_Question_Answer, self).save(*args, **kwargs)    
-    
+
+    def __str__(self):
+        return f"candidate answer : {self.candidate_id , self.quiz_question_id}"    
 
 
-class AnswerQuerySet(models.QuerySet):
-    pass
-
-
-class AnswerManager(models.Manager):
-    def get_queryset(self):
-        return AnswerQuerySet(self.model, using=self._db)
-    
 
 class Answers(models.Model):
     id = models.UUIDField(primary_key=True , default = uuid.uuid4 , editable= False)
@@ -154,17 +97,8 @@ class Answers(models.Model):
     def save(self, *args, **kwargs):
         super(Answers, self).save(*args, **kwargs)    
 
-class QuestionQuerySet(models.QuerySet):
-    pass
-
-class QuestionManager(models.Manager):
-    def get_queryset(self):
-        return Question(self.model, using=self._db)
-    
-    # def get_quiz_questions(self):
-    #     return self.get_queryset().filter(questions)
-
-
+    def __str__(self):
+        return f"answer options : {self.option1}, {self.option2}, {self.option3}, {self.option4}"
 
 class Question(models.Model):
     id = models.UUIDField(primary_key=True , default = uuid.uuid4 , editable= False)
@@ -178,33 +112,9 @@ class Question(models.Model):
     objects = models.Manager()
     question_manager = QuestionManager()
 
-    # def get_quiz_questions(self, quiz):
-    #     return self.question_manager.filter(id__in=quiz.get_question_ids())
+    def __str__(self):
+        return f"question text : {self.text}"
 
-
-class QuizQuerySet(models.QuerySet):
-    def get_candidates(self):
-        return Candidate.objects.all().filter(id__in=self.all().values('Candidate_fk__id')) # be ja candidate bayad yser bashe ...
-    def get_all_users(self):
-        # return Candidate.candidate_manager.get_users().filter(id__in=self.all().values('Candidate_fk__id'))  # quiz haE ka hazf shodan bug mide 
-        return Candidate.candidate_manager.get_users().filter(id__in=self.get_candidates().values('user_id__id'))
-        
-
-class QuizManager(models.Manager):
-    def get_queryset(self):
-        return QuizQuerySet(self.model, using=self._db)
-    
-    def get_candidates(self): # all candidates who took a quiz (some candidates can correspond to a single user)
-        return self.get_queryset().get_candidates() 
-    
-    def get_users(self): # all users who took a quiz
-        return self.get_queryset().get_all_users()  
-
-    def total_quiz_count(self): # total number of quizes
-        return len(self.get_queryset())
-
-    def get_questions(self, quiz): # TODO : remove
-        return quiz.questions.all()
 
 class Quiz(models.Model):
     id = models.UUIDField(primary_key=True , default = uuid.uuid4 , editable= False)
@@ -220,13 +130,6 @@ class Quiz(models.Model):
     objects = models.Manager()
     quiz_manager = QuizManager_practice()
 
-    
-
-    # class Meta:
-    #     permissions = (
-    #         ('can_take_quiz', 'Can Take Quiz'),
-    #     )
-
     def __str__(self):
         return f'{self.title}'
 
@@ -238,6 +141,9 @@ class QuizDetail(models.Model):
     time_limit = models.BooleanField(_("Time Limit"), default = False)
     time_per_question = models.TimeField(_("Time Per Question"))
 
+    def __str__(self):
+        return f"quiz by : {self.teacher.user.first_name} , {self.teacher.user.last_name}"
+
 class Question_Feedback(models.Model):
     id = models.UUIDField(primary_key=True , default = uuid.uuid4 , editable= False)
     title = models.CharField(max_length=50)
@@ -245,10 +151,16 @@ class Question_Feedback(models.Model):
     user_id = models.ForeignKey('quiz.User', on_delete=models.SET_NULL,null=True)
     question_id = models.ForeignKey('quiz.Question', on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f"feedback title : {self.title}"
+
 class Level(models.Model):
     id = models.UUIDField(primary_key=True , default = uuid.uuid4 , editable= False)
     name = models.CharField(max_length=20)
     slug = models.SlugField(max_length=20)
+
+    def __str__(self):
+        return f"{self.slug}"
 
 
 class Category(models.Model):
@@ -258,3 +170,6 @@ class Category(models.Model):
 
     class Meta:
         verbose_name_plural = "Categories"
+    
+    def __str__(self):
+        return f"{self.slug}"
